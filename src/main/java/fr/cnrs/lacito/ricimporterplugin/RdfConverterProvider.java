@@ -25,8 +25,17 @@ public interface RdfConverterProvider {
     }
 
     /**
-     * Creates a converter bound to {@code input} (a file or a directory, depending on the
-     * converter). Implementations should validate the input eagerly.
+     * Whether {@link #create} expects a file or a directory. Defaults to
+     * {@link InputKind#FILE_OR_DIRECTORY}, so providers written before this method existed keep
+     * working; override it so that host applications can offer the right chooser.
+     */
+    default InputKind inputKind() {
+        return InputKind.FILE_OR_DIRECTORY;
+    }
+
+    /**
+     * Creates a converter bound to {@code input} (a file or a directory, as declared by
+     * {@link #inputKind()}). Implementations should validate the input eagerly.
      *
      * @throws RdfConversionException if the input is not acceptable
      */

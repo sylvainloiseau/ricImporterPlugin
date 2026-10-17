@@ -10,8 +10,8 @@ discovered with the JDK `ServiceLoader`.
 
 ```xml
 <dependency>
-  <groupId>fr.cnrs.lacito</groupId>
-  <artifactId>ricImporterPlugin</artifactId>
+  <groupId>io.github.sylvainloiseau</groupId>
+  <artifactId>ricimporterplugin</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 </dependency>
 ```
@@ -51,7 +51,8 @@ converter.convert(myRdfHandler);
 ```
 
 `RdfConverters.available()` lists the installed converters. Each provider also describes its
-options (`RdfConverterProvider.options()`).
+options (`RdfConverterProvider.options()`) and whether it reads a file, a directory or either
+(`RdfConverterProvider.inputKind()`), so that a host can offer the right chooser.
 
 ## Writing a converter
 
@@ -59,7 +60,9 @@ options (`RdfConverterProvider.options()`).
    namespaces, emit each statement once (normally without a context), then call `endRDF()`.
    Report input problems as `RdfConversionException`. See the `RdfConverter` Javadoc for the
    full contract.
-2. Implement `RdfConverterProvider` (public no-arg constructor, unique `name()`).
+2. Implement `RdfConverterProvider` (public no-arg constructor, unique `name()`). Override
+   `inputKind()` to return `InputKind.FILE` or `InputKind.DIRECTORY`; the default,
+   `FILE_OR_DIRECTORY`, makes hosts offer both choosers.
 3. Register it in `src/main/resources/META-INF/services/fr.cnrs.lacito.ricimporterplugin.RdfConverterProvider`.
    If you build a shaded jar, use the shade plugin's `ServicesResourceTransformer`, so that
    the service files of all jars are merged instead of overwritten.
@@ -69,7 +72,8 @@ options (`RdfConverterProvider.options()`).
 | Type | Purpose |
 |---|---|
 | `RdfConverter` | `convert(RDFHandler)`, `suggestedContext()`, `toModel()` |
-| `RdfConverterProvider` | ServiceLoader SPI: `name()`, `description()`, `options()`, `create(Path, ConverterOptions)` |
+| `RdfConverterProvider` | ServiceLoader SPI: `name()`, `description()`, `options()`, `inputKind()`, `create(Path, ConverterOptions)` |
+| `InputKind` | What `create` reads: `FILE`, `DIRECTORY` or `FILE_OR_DIRECTORY` |
 | `RdfConverters` | Provider lookup: `available()`, `find(name)`, `get(name)` |
 | `ConverterOptions` / `OptionDescriptor` | Base IRI + string options / option documentation |
 | `RepositoryLoader` | `replaceGraph`, `addToGraph`, `load` into an RDF4J `Repository`, transactional |
