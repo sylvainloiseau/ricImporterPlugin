@@ -33,6 +33,8 @@ Model model = converter.toModel();
 // 2. To a file; the format is guessed from the extension, with RDF/XML as the fallback
 Path out = Path.of("out.ttl");
 RdfOutput.write(converter, out, RdfOutput.resolveFormat(null, out, RDFFormat.RDFXML));
+// Output is pretty-printed but streamed: blank nodes are not inlined in Turtle/TriG, since
+// RDF4J's INLINE_BLANK_NODES setting buffers the whole graph and is very slow on large data.
 
 // 3. Into a running RDF4J repository (embedded or remote), replacing the named graph atomically
 Repository repo = new HTTPRepository("http://localhost:8080/rdf4j-server", "corpus");

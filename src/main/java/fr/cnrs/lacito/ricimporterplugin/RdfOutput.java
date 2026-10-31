@@ -165,7 +165,13 @@ public final class RdfOutput {
         return counter.count();
     }
 
-    /** Creates a Rio writer configured for readable output. */
+    /**
+     * Creates a Rio writer configured for readable output, while still streaming.
+     *
+     * <p>{@link BasicWriterSettings#INLINE_BLANK_NODES} is deliberately left off: with it, the
+     * Turtle/TriG writers buffer the whole graph before writing, which is very slow on large
+     * outputs.
+     */
     public static RDFWriter createWriter(RDFFormat format, OutputStream out) {
         RDFWriter writer;
         try {
@@ -175,9 +181,7 @@ public final class RdfOutput {
                     + "; add the corresponding org.eclipse.rdf4j:rdf4j-rio-* dependency", e);
         }
         writer.getWriterConfig().set(BasicWriterSettings.PRETTY_PRINT, true);
-        if (format.equals(RDFFormat.TURTLE) || format.equals(RDFFormat.TRIG)) {
-            writer.getWriterConfig().set(BasicWriterSettings.INLINE_BLANK_NODES, true);
-        }
+        writer.getWriterConfig().set(BasicWriterSettings.INLINE_BLANK_NODES, false);
         return writer;
     }
 }
